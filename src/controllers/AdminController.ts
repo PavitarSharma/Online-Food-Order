@@ -52,6 +52,7 @@ export const CreateVendor = async (
     coverImages: [],
     lat: 0,
     lng: 0,
+    foods: [],
   });
 
   return res.json(createdVandor);

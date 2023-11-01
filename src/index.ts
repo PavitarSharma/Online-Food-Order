@@ -2,6 +2,7 @@ import express from "express";
 import { config } from "dotenv";
 import { AdminRoute, VendorRoute } from "./routes";
 import connectDB from "./utility/db";
+import path from "path";
 
 config();
 
@@ -10,6 +11,7 @@ const PORT = process.env.PORT || 8001;
 
 connectDB();
 
+app.use("/images", express.static(path.join(__dirname, "./images")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
