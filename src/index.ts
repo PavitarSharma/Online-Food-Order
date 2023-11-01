@@ -1,28 +1,19 @@
 import express from "express";
 import { config } from "dotenv";
-import { AdminRoute, VendorRoute } from "./routes";
-import connectDB from "./utility/db";
-import path from "path";
+import App from "./services/ExpressApp";
+import dbConnection from "./services/Database";
+import { PORT } from "./config";
 
 config();
 
-const app = express();
-const PORT = process.env.PORT || 8001;
+const StartServer = async () => {
+  const app = express();
 
-connectDB();
+  await dbConnection();
 
-app.use("/images", express.static(path.join(__dirname, "./images")));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+  await App(app);
 
-app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Hello from the food order backend",
-  });
-});
+  app.listen(PORT, () => console.log(`Server is listening to port ${PORT}`));
+};
 
-app.use("/admin", AdminRoute);
-app.use("/vendor", VendorRoute);
-
-app.listen(PORT, () => console.log(`Server is listening to port ${PORT}`));
+StartServer();
