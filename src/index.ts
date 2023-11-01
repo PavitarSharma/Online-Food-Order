@@ -1,6 +1,6 @@
 import express from "express";
 import { config } from "dotenv";
-import { AdminRoute, VandorRoute } from "./routes";
+import { AdminRoute, VendorRoute } from "./routes";
 import connectDB from "./utility/db";
 
 config();
@@ -8,7 +8,7 @@ config();
 const app = express();
 const PORT = process.env.PORT || 8001;
 
-connectDB()
+connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,6 +21,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/admin", AdminRoute);
-app.use("/vendor", VandorRoute);
+app.use("/vendor", VendorRoute);
 
 app.listen(PORT, () => console.log(`Server is listening to port ${PORT}`));
