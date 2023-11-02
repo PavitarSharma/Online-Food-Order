@@ -17,7 +17,7 @@ const config_1 = require("../config");
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const conn = yield mongoose_1.default.connect(config_1.MONGO_URI);
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        console.log(`MongoDB Connected`);
     }
     catch (error) {
         console.error(error.message);
