@@ -15,7 +15,6 @@
     "@types/cors": "^2.8.15",
     "@types/express": "^4.17.20",
     "@types/jsonwebtoken": "^9.0.4",
-    "@types/mongoose": "^5.11.97",
     "@types/multer": "^1.4.9",
     "@types/node": "^20.8.10",
     "nodemon": "^3.0.1",
@@ -36,6 +35,6 @@
     "twilio": "^4.19.0"
   },
   "engines": {
-    "node": "14.20.1"
+    "node": "16.20.1"
   }
 }
