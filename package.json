@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "rimraf dist && npx tsc",
+    "build": "tsc -p .",
     "dev": "nodemon",
-    "start": "node ./dist/index.js"
+    "start": "node dist/index.js",
+    "postInstall": "yarn run build"
   },
   "license": "MIT",
   "devDependencies": {
