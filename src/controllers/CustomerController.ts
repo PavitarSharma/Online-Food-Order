@@ -38,7 +38,7 @@ export const CustomerSignUp = async (
 
   const { otp, otp_expiry } = GenerateOtp();
 
-  const existingCustomer = await Customer.find({ email: email });
+  const existingCustomer = await Customer.findOne({ email: email });
 
   if (existingCustomer !== null) {
     return res.status(400).json({ message: "Email already exist!" });
@@ -108,7 +108,7 @@ export const CustomerLogin = async (
     );
 
     if (validation) {
-      const signature = GenerateSignature({
+      const signature = await GenerateSignature({
         _id: customer._id,
         email: customer.email,
         verified: customer.verified,
@@ -135,13 +135,14 @@ export const CustomerVerify = async (
 
   if (customer) {
     const profile = await Customer.findById(customer._id);
+
     if (profile) {
-      if (profile.otp === parseInt(otp) && profile.otp_expiry <= new Date()) {
+      if (profile.otp === parseInt(otp) && profile.otp_expiry >= new Date()) {
         profile.verified = true;
 
         const updatedCustomerResponse = await profile.save();
 
-        const signature = GenerateSignature({
+        const signature = await GenerateSignature({
           _id: updatedCustomerResponse._id,
           email: updatedCustomerResponse.email,
           verified: updatedCustomerResponse.verified,

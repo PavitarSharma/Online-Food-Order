@@ -9,4 +9,6 @@ export const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID as string;
 
 export const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN as string;
 
+export const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+
 export const PORT = process.env.PORT || 8000;
