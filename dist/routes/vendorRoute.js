@@ -10,6 +10,9 @@ const CommonAuth_1 = require("../middleware/CommonAuth");
 const middleware_1 = require("../middleware");
 const router = express_1.default.Router();
 exports.VendorRoute = router;
+router.get("/", (req, res) => {
+    res.json({ message: "Hello from vendor." });
+});
 router.post("/login", controllers_1.VendorLogin);
 router.use(CommonAuth_1.Authenticate);
 router.get("/profile", controllers_1.GetVendorProfile);
@@ -18,7 +21,8 @@ router.patch("/coverimage", middleware_1.images, controllers_1.UpdateVendorCover
 router.patch("/service", controllers_1.UpdateVendorService);
 router.post("/food", middleware_1.images, controllers_1.AddFood);
 router.get("/foods", controllers_1.GetFoods);
-router.get("/", (req, res) => {
-    res.json({ message: "Hello from vendor." });
-});
+// Orders
+router.get("/orders", controllers_1.GetCurrentOrders);
+router.put("/order/:id/process", controllers_1.ProcessOrder);
+router.get("/order/:id", controllers_1.GetOrderDetail);
 //# sourceMappingURL=vendorRoute.js.map

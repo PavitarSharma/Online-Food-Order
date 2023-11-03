@@ -9,7 +9,7 @@ import {
 import path from "path";
 
 export default async (app: Application) => {
-  app.use("/images", express.static(path.join(__dirname, "images")));
+  app.use("/images", express.static(path.join(__dirname, "../images")));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 

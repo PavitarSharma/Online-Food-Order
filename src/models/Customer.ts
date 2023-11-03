@@ -10,11 +10,12 @@ interface CustomerDoc extends Document {
   address: string;
   phone: string;
   verified: boolean;
-  otp: number;
+  otp: number | undefined;
   otp_expiry: Date;
   lat: number;
   lng: number;
   orders: [OrderDoc];
+  cart: [any];
 }
 
 const CustomerSchema = new Schema(
@@ -35,6 +36,15 @@ const CustomerSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "order",
+      },
+    ],
+    cart: [
+      {
+        food: {
+          type: mongoose.SchemaTypes.ObjectId,
+          ref: "food",
+        },
+        unit: { type: Number },
       },
     ],
   },

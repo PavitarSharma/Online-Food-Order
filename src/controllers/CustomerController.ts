@@ -64,6 +64,7 @@ export const CustomerSignUp = async (
 
   if (result) {
     // Send the otp to customer
+
     await onRequestOTP(otp, phone);
 
     // Generate the signature
@@ -142,6 +143,7 @@ export const CustomerVerify = async (
     if (profile) {
       if (profile.otp === parseInt(otp) && profile.otp_expiry >= new Date()) {
         profile.verified = true;
+        profile.otp = undefined;
 
         const updatedCustomerResponse = await profile.save();
 
@@ -179,6 +181,10 @@ export const RequestOtp = async (
       profile.otp_expiry = otp_expiry;
 
       await profile.save();
+
+      const Message = `Your otp is: ${otp}`;
+      const Subject = `OTP: ${otp}`;
+
       const sendCode = await onRequestOTP(otp, profile.phone);
 
       if (!sendCode) {
@@ -202,6 +208,8 @@ export const GetCustomerProfile = async (
   next: NextFunction
 ) => {
   const customer = req.user;
+
+  console.log(customer);
 
   if (customer) {
     const profile = await Customer.findById(customer._id);
@@ -344,6 +352,87 @@ export const GetOrderById = async (
   }
 
   return res.status(400).json({ message: "Order not found" });
+};
+/* ============================= Cart ================= */
+export const AddToCart = async (req: Request, res: Response) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await Customer.findById(customer._id);
+    let cartItems = Array();
+
+    const { _id, unit } = <CartItem>req.body;
+
+    const food = await Food.findById(_id);
+
+    if (food) {
+      if (profile != null) {
+        cartItems = profile.cart;
+
+        if (cartItems.length > 0) {
+          // check and update
+          let existFoodItems = cartItems.filter(
+            (item) => item.food._id.toString() === _id
+          );
+          if (existFoodItems.length > 0) {
+            const index = cartItems.indexOf(existFoodItems[0]);
+
+            if (unit > 0) {
+              cartItems[index] = { food, unit };
+            } else {
+              cartItems.splice(index, 1);
+            }
+          } else {
+            cartItems.push({ food, unit });
+          }
+        } else {
+          // add new Item
+          cartItems.push({ food, unit });
+        }
+
+        if (cartItems) {
+          profile.cart = cartItems as any;
+          const cartResult = await profile.save();
+          return res.status(200).json(cartResult.cart);
+        }
+      }
+    }
+  }
+
+  return res.status(400).json({ message: "Unable to add to cart" });
+};
+
+export const GetCart = async (req: Request, res: Response) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await Customer.findById(customer._id).populate("cart.food");
+
+    if (profile) {
+      return res.status(200).json(profile.cart);
+    }
+  }
+
+  return res.status(400).json({ message: "Cart is Empty!" });
+};
+
+export const DeleteCart = async (req: Request, res: Response) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await Customer.findById(customer._id)
+      .populate("cart.food")
+      .exec();
+
+    if (profile != null) {
+      profile.cart = [] as any;
+      const cartResult = await profile.save();
+
+      return res.status(200).json(cartResult);
+    }
+  }
+
+  return res.status(400).json({ message: "Cart is Already Empty!" });
 };
 
 /* ------------------- Delivery Notification --------------------- */

@@ -39,6 +39,11 @@ const OrderSchema = new mongoose_1.Schema({
     orderDate: { type: Date },
     orderStatus: { type: String },
     paymentResponse: { type: String },
+    remarks: { type: String },
+    deliveryId: { type: String },
+    offerId: { type: String },
+    appliedOffers: { type: Boolean },
+    readyTime: { type: Number },
 }, {
     toJSON: {
         transform(doc, ret) {

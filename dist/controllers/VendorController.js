@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetFoods = exports.AddFood = exports.UpdateVendorService = exports.UpdateVendorCoverImage = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
+exports.ProcessOrder = exports.GetOrderDetail = exports.GetCurrentOrders = exports.GetFoods = exports.AddFood = exports.UpdateVendorService = exports.UpdateVendorCoverImage = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
 const utility_1 = require("../utility");
 const AdminController_1 = require("./AdminController");
 const models_1 = require("../models");
@@ -122,4 +122,46 @@ const GetFoods = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     return res.json({ message: "Foods not found!" });
 });
 exports.GetFoods = GetFoods;
+const GetCurrentOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const vendor = req.user;
+    if (vendor) {
+        const orders = yield models_1.Order.find({ vendorId: vendor._id }).populate("items.food");
+        if (orders !== null) {
+            return res.status(200).json(orders);
+        }
+    }
+    return res.json(400).json({ message: "Order not found" });
+});
+exports.GetCurrentOrders = GetCurrentOrders;
+const GetOrderDetail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const orderId = req.params.id;
+    if (orderId) {
+        const order = yield models_1.Order.findById(orderId).populate("items.food");
+        if (order !== null) {
+            return res.status(200).json(order);
+        }
+    }
+    return res.json(400).json({ message: "Order not found" });
+});
+exports.GetOrderDetail = GetOrderDetail;
+const ProcessOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const orderId = req.params.id;
+    const { status, remarks, time } = req.body;
+    if (orderId) {
+        const order = yield models_1.Order.findById(orderId).populate("items.food");
+        if (order) {
+            order.orderStatus = status;
+            order.remarks = remarks;
+            if (time) {
+                order.readyTime = time;
+            }
+            const orderResult = yield order.save();
+            if (orderResult != null) {
+                return res.status(200).json(orderResult);
+            }
+        }
+    }
+    return res.status(400).json({ message: "Unable to process order" });
+});
+exports.ProcessOrder = ProcessOrder;
 //# sourceMappingURL=VendorController.js.map

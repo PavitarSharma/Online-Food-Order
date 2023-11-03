@@ -9,6 +9,9 @@ const controllers_1 = require("../controllers");
 const middleware_1 = require("../middleware");
 const router = express_1.default.Router();
 exports.CustomerRoute = router;
+router.get("/", (req, res) => {
+    res.json({ message: "Hello from customer." });
+});
 /* ==================== Sign Up / Create Customer ================================ */
 router.post("/signup", controllers_1.CustomerSignUp);
 /* ==================== Login ================================ */
@@ -23,12 +26,11 @@ router.post("/otp", controllers_1.RequestOtp);
 router.get("/profile", controllers_1.GetCustomerProfile);
 router.patch("/profile", controllers_1.EditCustomerProfile);
 // Cart
+router.post("/cart", controllers_1.AddToCart);
+router.get("/cart", controllers_1.GetCart);
+router.delete("/cart", controllers_1.DeleteCart);
 // Order
 router.post("/create-order", controllers_1.CreateOrder);
 router.get("/orders", controllers_1.GetOrders);
 router.get("/order/:id", controllers_1.GetOrderById);
-//Payment
-router.get("/", (req, res) => {
-    res.json({ message: "Hello from customer." });
-});
 //# sourceMappingURL=customerRoute.js.map

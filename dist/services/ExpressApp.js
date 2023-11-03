@@ -16,7 +16,7 @@ const express_1 = __importDefault(require("express"));
 const routes_1 = require("../routes");
 const path_1 = __importDefault(require("path"));
 exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
-    app.use("/images", express_1.default.static(path_1.default.join(__dirname, "images")));
+    app.use("/images", express_1.default.static(path_1.default.join(__dirname, "../images")));
     app.use(express_1.default.json());
     app.use(express_1.default.urlencoded({ extended: true }));
     app.get("/", (req, res) => {
