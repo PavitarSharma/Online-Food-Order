@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { plainToClass } from "class-transformer";
 import {
+  CartItem,
   CreateCustomerInput,
   CustomerLoginInput,
   EditCustomerProfileInput,
+  OrderInputs,
 } from "../dto/Customer.dto";
 import { validate } from "class-validator";
 import {
@@ -14,7 +16,7 @@ import {
   ValidatePassword,
   onRequestOTP,
 } from "../utility";
-import { Customer } from "../models";
+import { Customer, Food, Order } from "../models";
 
 export const CustomerSignUp = async (
   req: Request,
@@ -57,6 +59,7 @@ export const CustomerSignUp = async (
     firstName: "",
     lastName: "",
     address: "",
+    orders: [],
   });
 
   if (result) {
@@ -242,6 +245,105 @@ export const EditCustomerProfile = async (
     }
   }
   return res.status(400).json({ message: "Error while Updating Profile" });
+};
+
+/* ------------------- Order --------------------- */
+export const CreateOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  //Grab Login Customer
+  const customer = req.user;
+
+  if (customer) {
+    // Create an order ID
+    const orderId = `${Math.floor(Math.random() * 89999) + 1000}`;
+
+    const profile = await Customer.findById(customer._id);
+
+    // Grab order item from request
+    const cart = <[CartItem]>req.body;
+
+    let cartItems = Array();
+
+    let netAmount = 0.0;
+
+    let vendorId;
+
+    // Calculate order amount
+    const foods = await Food.find()
+      .where("_id")
+      .in(cart.map((item) => item._id))
+      .exec();
+
+    foods.map((food) => {
+      cart.map(({ _id, unit }) => {
+        if (food._id == _id) {
+          vendorId = food.vendorId;
+          netAmount += food.price * unit;
+          cartItems.push({ food, unit });
+        }
+      });
+    });
+
+    if (cartItems) {
+      const currentOrder = await Order.create({
+        orderId: orderId,
+        vendorId: vendorId,
+        items: cartItems,
+        totalAmount: netAmount,
+        orderDate: new Date(),
+        orderStatus: "Waiting",
+        paymentResponse: "",
+      });
+
+      if (currentOrder) {
+        profile?.orders.push(currentOrder);
+
+        await profile?.save();
+
+        return res.status(200).json(currentOrder);
+      }
+    }
+  }
+
+  return res.status(400).json({ message: "Error with create order" });
+};
+
+export const GetOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await Customer.findById(customer._id).populate("orders");
+    if (profile) {
+      return res.status(200).json(profile.orders);
+    }
+  }
+
+  return res.status(400).json({ message: "Orders not found" });
+};
+
+export const GetOrderById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const orderId = req.params.id;
+
+  if (orderId) {
+    const order = await Order.findById(orderId).populate("items.food");
+
+    if (order) {
+      return res.status(200).json(order);
+    }
+  }
+
+  return res.status(400).json({ message: "Order not found" });
 };
 
 /* ------------------- Delivery Notification --------------------- */

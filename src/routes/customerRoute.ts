@@ -1,10 +1,13 @@
 import express, { Request, Response } from "express";
 import {
+  CreateOrder,
   CustomerLogin,
   CustomerSignUp,
   CustomerVerify,
   EditCustomerProfile,
   GetCustomerProfile,
+  GetOrderById,
+  GetOrders,
   RequestOtp,
 } from "../controllers";
 import { Authenticate } from "../middleware";
@@ -18,7 +21,7 @@ router.post("/signup", CustomerSignUp);
 router.post("/login", CustomerLogin);
 
 // Authenticate
-router.use(Authenticate)
+router.use(Authenticate);
 /* ==================== Verify Customer Account ================================ */
 router.patch("/verify", CustomerVerify);
 
@@ -33,6 +36,9 @@ router.patch("/profile", EditCustomerProfile);
 // Cart
 
 // Order
+router.post("/create-order", CreateOrder);
+router.get("/orders", GetOrders);
+router.get("/order/:id", GetOrderById);
 
 //Payment
 

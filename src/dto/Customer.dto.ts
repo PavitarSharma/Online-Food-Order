@@ -35,3 +35,36 @@ export class EditCustomerProfileInput {
   @Length(6, 16)
   address: string;
 }
+
+export class CartItem {
+  _id: string;
+  unit: number;
+}
+
+export class OrderInputs {
+  _id: string;
+  unit: number;
+}
+
+export class CreateDeliveryUserInput {
+  @IsEmail()
+  email: string;
+
+  @Length(7, 12)
+  phone: string;
+
+  @Length(6, 12)
+  password: string;
+
+  @Length(3, 12)
+  firstName: string;
+
+  @Length(3, 12)
+  lastName: string;
+
+  @Length(6, 24)
+  address: string;
+
+  @Length(4, 12)
+  pincode: string;
+}

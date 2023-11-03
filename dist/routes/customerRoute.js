@@ -24,6 +24,9 @@ router.get("/profile", controllers_1.GetCustomerProfile);
 router.patch("/profile", controllers_1.EditCustomerProfile);
 // Cart
 // Order
+router.post("/create-order", controllers_1.CreateOrder);
+router.get("/orders", controllers_1.GetOrders);
+router.get("/order/:id", controllers_1.GetOrderById);
 //Payment
 router.get("/", (req, res) => {
     res.json({ message: "Hello from customer." });

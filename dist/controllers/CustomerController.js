@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
+exports.GetOrderById = exports.GetOrders = exports.CreateOrder = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOtp = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
 const class_transformer_1 = require("class-transformer");
 const Customer_dto_1 = require("../dto/Customer.dto");
 const class_validator_1 = require("class-validator");
@@ -44,6 +44,7 @@ const CustomerSignUp = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         firstName: "",
         lastName: "",
         address: "",
+        orders: [],
     });
     if (result) {
         // Send the otp to customer
@@ -174,5 +175,74 @@ const EditCustomerProfile = (req, res, next) => __awaiter(void 0, void 0, void 0
     return res.status(400).json({ message: "Error while Updating Profile" });
 });
 exports.EditCustomerProfile = EditCustomerProfile;
+/* ------------------- Order --------------------- */
+const CreateOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    //Grab Login Customer
+    const customer = req.user;
+    if (customer) {
+        // Create an order ID
+        const orderId = `${Math.floor(Math.random() * 89999) + 1000}`;
+        const profile = yield models_1.Customer.findById(customer._id);
+        // Grab order item from request
+        const cart = req.body;
+        let cartItems = Array();
+        let netAmount = 0.0;
+        let vendorId;
+        // Calculate order amount
+        const foods = yield models_1.Food.find()
+            .where("_id")
+            .in(cart.map((item) => item._id))
+            .exec();
+        foods.map((food) => {
+            cart.map(({ _id, unit }) => {
+                if (food._id == _id) {
+                    vendorId = food.vendorId;
+                    netAmount += food.price * unit;
+                    cartItems.push({ food, unit });
+                }
+            });
+        });
+        if (cartItems) {
+            const currentOrder = yield models_1.Order.create({
+                orderId: orderId,
+                vendorId: vendorId,
+                items: cartItems,
+                totalAmount: netAmount,
+                orderDate: new Date(),
+                orderStatus: "Waiting",
+                paymentResponse: "",
+            });
+            if (currentOrder) {
+                profile === null || profile === void 0 ? void 0 : profile.orders.push(currentOrder);
+                yield (profile === null || profile === void 0 ? void 0 : profile.save());
+                return res.status(200).json(currentOrder);
+            }
+        }
+    }
+    return res.status(400).json({ message: "Error with create order" });
+});
+exports.CreateOrder = CreateOrder;
+const GetOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = req.user;
+    if (customer) {
+        const profile = yield models_1.Customer.findById(customer._id).populate("orders");
+        if (profile) {
+            return res.status(200).json(profile.orders);
+        }
+    }
+    return res.status(400).json({ message: "Orders not found" });
+});
+exports.GetOrders = GetOrders;
+const GetOrderById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const orderId = req.params.id;
+    if (orderId) {
+        const order = yield models_1.Order.findById(orderId).populate("items.food");
+        if (order) {
+            return res.status(200).json(order);
+        }
+    }
+    return res.status(400).json({ message: "Order not found" });
+});
+exports.GetOrderById = GetOrderById;
 /* ------------------- Delivery Notification --------------------- */
 //# sourceMappingURL=CustomerController.js.map
